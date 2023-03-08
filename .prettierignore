@@ -1,0 +1,13 @@
+# ignore node_modules
+node_modules
+
+# ignore build outputs
+dist/
+build/
+
+# ignore static resources
+public/
+
+# ignore temporary dir
+tmp/
+temp/

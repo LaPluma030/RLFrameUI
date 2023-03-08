@@ -1,0 +1,23 @@
+root: true
+extends:
+  - eslint:recommended
+  - plugin:@typescript-eslint/recommended
+  - plugin:vue/vue3-recommended
+  - plugin:prettier/recommended
+env:
+  es2021: true
+  browser: true
+  node: true
+parserOptions:
+  sourceType: module
+  ecmaVersion: 2021
+rules:
+  "@typescript-eslint/no-non-null-assertion": off
+overrides:
+  - files:
+      - "*.vue"
+    parser: "vue-eslint-parser"
+    parserOptions:
+      parser: "@typescript-eslint/parser"
+    rules:
+      no-undef: off

@@ -1,0 +1,188 @@
+//python -m grpc_tools.protoc --python_out=. --grpc_python_out=. -I. .\Optimizer.proto
+syntax = "proto3";
+
+package rl_optimize;
+
+service OptimizerService{
+  rpc InitOptimizer(InitRequest) returns(InitResponse);
+  // 控制优化过程，包括开始、暂停、继续和停止
+  rpc Control (ControlRequest) returns (ControlResponse);
+  // 手动保存参数
+  rpc SaveModel(SaveRequest) returns(SaveResponse);
+}
+
+message Model{
+  int64 InputDimension = 1;
+  int64 OutputDimension = 2;
+  int64 InferenceDimension = 3;
+  NNModel ModelParams = 4;
+  int64 PushFrequency = 5;
+  string InferenceUrl = 6;
+  string MemoryUrl = 7;
+  string ModelId = 9;
+  repeated SimModel simModel = 10;
+}
+message SimModel {
+  string id=1;
+  repeated string status = 2;
+  repeated SimAction action = 3;
+}
+message SimAction {
+  string name = 1;
+  int64 bound = 2;
+  int64 shift = 3;
+}
+message InitRequest{
+  repeated Model models =1;
+}
+
+message NNModel{
+  enum ModelType{
+    DQN = 0;
+    DoubleDQN = 1;
+    DDPG = 2;
+    mDDPG = 3;
+    A3C = 4;
+    PPO = 5;
+  }
+  repeated Network network =1;
+  ModelType type = 2;
+  int64 BatchSize = 3;
+  string ModelId = 4;
+}
+
+message Layer{
+  enum LayerType{
+    affine = 0;
+    input = 1;
+    output = 2;
+  }
+
+  enum Activator{
+    elu=0;
+    exponential=1;
+    gelu=2;
+    get=3;
+    hard_sigmoid=4;
+    linear=5;
+    relu=6;
+    selu=7;
+    serialize=8;
+    sigmoid=9;
+    softmax=10;
+    softplus=11;
+    softsign=12;
+    swish=13;
+    tanh=14;
+  }
+
+  message Appendix{
+    enum AppendixType{
+      none = 0;
+      dropout = 1;
+      normalbatch = 2;
+      ic = 3;
+    }
+    AppendixType appendixType = 1;
+    float param = 2;
+  }
+
+  LayerType type = 1;
+  Activator activator = 2;
+  int64 neutralAmount = 3;
+  Appendix appendix = 4;
+
+}
+
+message Network{
+  enum Initialization{
+    heUniform = 0;
+    heNormal = 1;
+    glorotNormal = 2;
+    GlorotUniform = 3;
+    constant = 4;
+    ones = 5;
+    orthogonal = 6;
+    randomUniform = 7;
+    truncateNormal = 8;
+    zeros = 9;
+  }
+
+  enum Loss{
+    MeanAbsoluteError= 0;
+    MeanAbsolutePercentageError= 1;
+    MeanSquaredError= 2;
+    MeanSquaredLogarithmicError= 3;
+    CategoricalCrossentropy= 4;
+    SparseCategoricalCrossentropy= 5;
+    BinaryCrossentropy= 6;
+    Hinge= 7;
+    CategoricalHinge= 8;
+    Poisson= 9;
+    SquaredHinge= 10;
+    LogCosh= 11;
+    KLDivergence= 12;
+    Hube= 13;
+  }
+
+  enum Optimizer{
+    RMSprop = 0;
+    Nadam = 1;
+    SGD = 2;
+    Ftrl = 3;
+    Adam = 4;
+    Adamax = 5;
+    Adagrad = 6;
+    Adadelta = 7;
+  }
+
+  enum EarlyStop{
+    none = 0;
+    baseOnLoss = 1;
+    baseOnProgress = 2;
+    baseOnError = 3;
+  }
+
+  Initialization initialization = 1;
+  repeated Layer layers = 2;
+  string subNetName = 3;
+  Loss loss = 4;
+  string lossFunction = 5;
+  Optimizer optimizer = 6;
+  double learningRate = 7;
+  string learningRateDecay = 8;
+  EarlyStop earlyStop = 9;
+  string earlyStopFunction = 10;
+
+}
+
+message InitResponse{
+  string msg = 1;
+}
+
+// 参考sim_controller.proto
+message ControlRequest{
+  enum RunCmdType {
+    // 开始
+    START = 0;
+    // 暂停
+    SUSPEND = 1;
+    // 继续
+    CONTINUE = 2;
+    // 停止
+    STOP = 3;
+  }
+  RunCmdType run_cmd = 1;
+}
+
+message ControlResponse{
+  string msg = 1;
+}
+
+message SaveRequest{
+  repeated NNModel models = 1;
+}
+
+message SaveResponse{
+  string msg = 1;
+}

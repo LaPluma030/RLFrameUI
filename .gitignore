@@ -1,0 +1,22 @@
+# ignore node_modules
+node_modules
+
+# ignore build outputs
+dist/
+build/
+
+# ignore temporary dir
+tmp/
+temp/
+
+# lock file
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# editor configs
+.vscode/
+.idea/
+
+# proto files
+# *.proto

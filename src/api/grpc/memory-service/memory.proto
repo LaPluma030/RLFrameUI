@@ -1,0 +1,53 @@
+//python -m grpc_tools.protoc --python_out=. --grpc_python_out=. -I. .\memory.proto
+syntax = "proto3";
+
+package rl_memory;
+
+service MemoryService{
+  //存入memory
+  rpc SaveMemory(SaveMemoryRequest)returns(CommonResponse){}
+  //获取batch_size大小的memory二进制数据
+  rpc GetMemory(GetMemoryRequest)returns(GetMemoryResponse){};
+  //存储服务初始化
+  rpc InitMemory(InitRequest)returns(CommonResponse);
+  //存储器状态
+  // 清除存储的数据
+  rpc ResetMemory(ResetRequest)returns(CommonResponse);
+}
+
+message SaveMemoryRequest{
+  message instance_info{
+    repeated float status = 1;
+    repeated float action = 2;
+    repeated float status_next = 3;
+    uint64 instance_id = 4;
+  }
+  repeated instance_info instance_infos = 1;
+}
+
+message CommonResponse{
+  string msg = 1;
+}
+
+message GetMemoryRequest{
+  int64 batch_size = 1;
+}
+
+message GetMemoryResponse{
+  bytes memory = 1;
+}
+
+message InitModel{
+  int64 statusDimension = 1;
+  int64 actionDimension = 2;
+  string rewardFunction = 3;
+  int64  memoryCapacity = 4;
+  string modelId = 5;
+}
+
+message InitRequest{
+  repeated InitModel initModels = 1;
+}
+
+message ResetRequest{
+}
